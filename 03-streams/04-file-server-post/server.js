@@ -50,14 +50,18 @@ function uploadFileHandler(req, res) {
     })
     .pipe(limitStream)
     .on('error', () => {
-      fs.unlink(filepath, () => {
-        response(res, 413, 'Size limit exceed');
+      fs.unlink(filepath, (err) => {
+        if (err) {
+          return response(res, 500, 'Internal error');
+        }
+
+        return response(res, 413, 'Size limit exceed');
       });
     })
     .pipe(writeStream)
     .on('error', () => {
-      fs.unlink(filepath, () => {
-        response(res, 500, 'Internal error');
+      fs.unlink(filepath, (err) => {
+        return response(res, 500, 'Internal error');
       });
     })
 }
