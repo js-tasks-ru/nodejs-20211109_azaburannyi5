@@ -9,6 +9,9 @@ module.exports = class Validator {
     for (const field of Object.keys(this.rules)) {
       const rules = this.rules[field];
 
+      if(!obj.hasOwnProperty(field))
+        return errors;
+
       const value = obj[field];
       const type = typeof value;
 
@@ -27,11 +30,14 @@ module.exports = class Validator {
           }
           break;
         case 'number':
+          if (isNaN(value) && (rules.min || rules.max)) {
+            errors.push({field, error: `NaN is not in range`});
+          }
           if (value < rules.min) {
             errors.push({field, error: `too little, expect ${rules.min}, got ${value}`});
           }
           if (value > rules.max) {
-            errors.push({field, error: `too big, expect ${rules.min}, got ${value}`});
+            errors.push({field, error: `too big, expect ${rules.max}, got ${value}`});
           }
           break;
       }
