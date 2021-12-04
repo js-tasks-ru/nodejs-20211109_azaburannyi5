@@ -30,9 +30,11 @@ function deleteFileHandler(req, res) {
 
   const filepath = path.join(__dirname, 'files', pathname);
 
-  if (!fs.existsSync(filepath)) {
-    return response(res, 404, 'File not found');
-  }
+  fs.access(filepath, (err) => {
+    if (err) {
+      return response(res, 404, 'File not found');
+    }
+  })
 
   fs.unlink(filepath, (err) => {
     if (err) {

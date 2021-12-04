@@ -31,39 +31,44 @@ function uploadFileHandler(req, res) {
 
   const filepath = path.join(__dirname, 'files', pathname);
 
-  if (fs.existsSync(filepath)) {
-    return response(res, 409, 'File exists');
-  }
+  fs.access(filepath, (err) => {
+    
+    if (!err) {
+      return response(res, 409, 'File exists');
+    }
 
-  let limitStream = new LimitSizeStream({limit: 1000000});
-  let writeStream = fs.createWriteStream(filepath);
-
-  req
-    .on('close', () => {
-      response(res, 201, 'File created');
-    })
-    .on('aborted', () => {
-      fs.unlink(filepath, () => {
-        limitStream.destroy();
-        writeStream.destroy();
-      });
-    })
-    .pipe(limitStream)
-    .on('error', () => {
-      fs.unlink(filepath, (err) => {
-        if (err) {
+    let limitStream = new LimitSizeStream({limit: 1000000});
+    let writeStream = fs.createWriteStream(filepath);
+  
+    req
+      .on('close', () => {
+        response(res, 201, 'File created');
+      })
+      .on('aborted', () => {
+        fs.unlink(filepath, () => {
+          limitStream.destroy();
+          writeStream.destroy();
+        });
+      })
+      .pipe(limitStream)
+      .on('error', () => {
+        fs.unlink(filepath, (err) => {
+          if (err) {
+            return response(res, 500, 'Internal error');
+          }
+  
+          return response(res, 413, 'Size limit exceed');
+        });
+      })
+      .pipe(writeStream)
+      .on('error', () => {
+        fs.unlink(filepath, (err) => {
           return response(res, 500, 'Internal error');
-        }
+        });
+      })
+      
+  });
 
-        return response(res, 413, 'Size limit exceed');
-      });
-    })
-    .pipe(writeStream)
-    .on('error', () => {
-      fs.unlink(filepath, (err) => {
-        return response(res, 500, 'Internal error');
-      });
-    })
 }
 
 function response(res, code, message) {
