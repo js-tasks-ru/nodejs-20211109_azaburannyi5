@@ -70,8 +70,6 @@ router.use(async (ctx, next) => {
   session.lastVisit = lastVisit;
   session.save()
 
-  ctx.body = lastVisit;
-
   return next();
 });
 
