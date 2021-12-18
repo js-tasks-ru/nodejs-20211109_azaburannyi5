@@ -12,6 +12,8 @@ const {me} = require('./controllers/me');
 const {register, confirm} = require('./controllers/registration');
 const Session = require('./models/Session');
 
+process.env.NODE_ENV = 'test'
+
 const app = new Koa();
 
 app.use(require('koa-bodyparser')());
