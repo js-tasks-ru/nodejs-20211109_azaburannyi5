@@ -157,7 +157,7 @@ describe('email/order', () => {
 
       expect(response.data, 'тело ответа должно содержать id заказа').to.have.property('order');
       expect(
-        response.data.order,
+        response.data.order.id,
         'id заказа должен быть валдиным ObjectId'
       ).to.satisfy(ObjectId.isValid);
 
